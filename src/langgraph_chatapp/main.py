@@ -1,10 +1,11 @@
 from langgraph.graph import StateGraph, MessagesState, START, END, add_messages
-from typing import TypedDict, Annotated
+from typing import Annotated
+from typing_extensions import TypedDict
 import os
 from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
-
+from langgraph_chatapp.rag_agent import getContext, PassContextToLLM
 load_dotenv()
 
 llm = ChatGroq(
@@ -17,15 +18,19 @@ llm = ChatGroq(
 class State(TypedDict):
     messages: Annotated[list, add_messages]
     decision: str
+    results: str
+    answer: str
 #database function
-def database_agent(query):
-    """database agent"""
-    print("Hi, its a hardcoded database indicator message")
+def database_agent(state: State)->State:
+    """"""
 #knowledge base function
-def knowledge_base_agent(query):
-    """RAG agent"""
-    print("Hi, its a hardcoded knowledgebase indicator message")
-
+def knowledge_base_agent(state: State)->State:
+    getContext(state)
+    PassContextToLLM(state)
+    return state
+def print_output(state: State)->State:
+    print(state["answer"])
+    return state
 model_w_tools = llm.bind_functions([database_agent, knowledge_base_agent])
 graph_builder = StateGraph(State)
 
@@ -63,6 +68,7 @@ graph_builder = StateGraph(State)
 graph_builder.add_node("AskAgent1", AskAgent1)
 graph_builder.add_node('database_agent', database_agent)
 graph_builder.add_node('knowledge_base_agent', knowledge_base_agent)
+graph_builder.add_node('print_output', print_output)
 
 graph_builder.add_edge(START, "AskAgent1")
 graph_builder.add_conditional_edges(
@@ -73,8 +79,9 @@ graph_builder.add_conditional_edges(
         "knowledge_base_agent": "knowledge_base_agent"
     }
 )
-graph_builder.add_edge("database_agent", END)
-graph_builder.add_edge("knowledge_base_agent", END)
+graph_builder.add_edge("database_agent", "print_output")
+graph_builder.add_edge("knowledge_base_agent", "print_output")
+graph_builder.add_edge("print_output", "AskAgent1")
 
 graph = graph_builder.compile()
 
@@ -84,4 +91,3 @@ inputs = {
     ]
 }
 res = graph.invoke(inputs)
-print(res)
