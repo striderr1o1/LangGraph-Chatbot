@@ -6,7 +6,7 @@ st.set_page_config(page_title="AI App", layout="wide")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Document Ingestion", "Database", "Chatbot"])
+page = st.sidebar.radio("Go to", ["Document Ingestion", "Chatbot"])
 
 # Page 1: Document Ingestion
 if page == "Document Ingestion":

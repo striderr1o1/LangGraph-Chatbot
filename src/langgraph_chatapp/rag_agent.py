@@ -40,12 +40,13 @@ def getContext(state):
 
 def PassContextToLLM(state):
     results = state["results"]
-    print(state["messages"][-1].content)
-    query = f"results from vector DB: {results}...User Query: {state['messages'][-1].content}"
+    chats = state["context"]
+    
+    query = f" previous chats: {chats}context: {results}...User Query: {state['messages'][-1].content}"
     answer = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
-            {"role": "system", "content": """Your task is to analyze the results you get
+            {"role": "system", "content": """Your task is to analyze the context
                                             and answer the user query from the results. Be precise"""
             },
             {
@@ -53,8 +54,7 @@ def PassContextToLLM(state):
             }
         ]
     )
+    state["context"]+=f"""\n\nUser: {state["messages"][-1].content}"""
     state["answer"]=answer.choices[0].message.content
    
     return state
-
-
