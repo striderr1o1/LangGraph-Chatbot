@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langgraph_chatapp.rag_agent import getContext, PassContextToLLM
+from langgraph_chatapp.database_agent import generateQuery, parse_sql, run_query, clean_sql
 import streamlit as st
 load_dotenv() 
 
@@ -23,27 +24,40 @@ class State(TypedDict):
     results: str
     answer: str
     context: str
+    sql_results: list
+    
 
 #database function
 def database_agent(state: State)->State:
     """"""
+    print("starting database function")
+    generateQuery(state)
+    sql_query = parse_sql(state)
+    cleaned_query = clean_sql(sql_query)
+    print("Final SQL:", cleaned_query)
+    run_query(cleaned_query, state)
+    print("ended database function")
+
 #knowledge base function
 def knowledge_base_agent(state: State)->State:
     getContext(state)
     PassContextToLLM(state)
     return state
+
 def print_output(state: State)->State:
     # print(state["answer"])
-    st.chat_message("ai").write(state["answer"])
-    state["context"]+=f"\n\nAI: {state['answer']}"
-    st.session_state["messages"].append({"role": "ai", "content": state["answer"] })
-    
+    if state["decision"] == "database_agent":
+        st.chat_input("results").write(state["sql_results"])
+    else:
+        st.chat_message("ai").write(state["answer"])
+        state["context"]+=f"\n\nAI: {state['answer']}"
+        st.session_state["messages"].append({"role": "ai", "content": state["answer"] })
     return state
-model_w_tools = llm.bind_functions([database_agent, knowledge_base_agent])
+
+model_w_tools = llm.bind_tools([database_agent, knowledge_base_agent])
 graph_builder = StateGraph(State)
 
 def AskAgent1(state: State) -> State:
-    
     #set context, either in string or lists
     if "messages" not in st.session_state:
         st.session_state["messages"] = []
@@ -118,7 +132,8 @@ def RunWorkFlow():
     "decision": "",
     "results": "",
     "answer": "",
-    "context": st.session_state["context"]   # empty string to start
+    "context": st.session_state["context"],   # empty string to start
+    "sql_results": []
 }
     finalstate = graph.invoke(inputs)
     st.session_state["context"] += finalstate["context"]
