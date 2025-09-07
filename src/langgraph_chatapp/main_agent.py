@@ -94,10 +94,10 @@ def AskAgent1(state: State) -> State:
 
 def check_decision(state: State)->State:
     if state["decision"]=="database_agent":
-        st.write("[x]Database Tool Called")
+        st.write("[x] Database Tool Called")
         return "database_agent"
     elif state["decision"]=="knowledge_base_agent":
-        st.write("[x]Rag Tool Called")
+        st.write("[x] Knowledge Base Tool Called")
         return "knowledge_base_agent"
     else:
         st.write("[x]Rag Tool Called")
