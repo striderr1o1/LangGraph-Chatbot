@@ -18,16 +18,6 @@ def readPDF(file):
     return text
 
 
-# def clean_text(text: str) -> str:
-#     # Step 1: Fix missing spaces (word segmentation)
-#     def segment_match(match):
-#         return " ".join(wordninja.split(match.group()))
-    
-#     # Apply segmentation to long glued words
-#     text = re.sub(r'[A-Za-z]{8,}', segment_match, text)
-    
-#     # Step 2: Fix double/messy spaces
-#     text = re.sub(r'\s+', ' ', text)
     
     return text.strip()
 

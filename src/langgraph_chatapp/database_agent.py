@@ -22,7 +22,7 @@ def generateQuery(state):
     response = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
-            {"role": "system", "content": f"""You are an SQL query generator based on analyzing the user query. Dont give even a single word other than the query. Here is the schema: {schema} """
+            {"role": "system", "content": f"""You are an SQL query generator based on analyzing the user query. Dont give even a single word other than the query. Here is the schema: {schema}. Return a single valid SQL query string for sqlite3, no comments, no explanations """
             },
             {
                 "role":"user", "content":f"""Here is the user question: {query}...make an SQL query based on user requirements. Return only SQL inside ```sql ... ``` block."""
@@ -34,10 +34,10 @@ def generateQuery(state):
     finalResponse = client.chat.completions.create(
         model="llama-3.3-70b-versatile",
         messages=[
-            {"role": "system", "content": f"""You are an SQL query analyzer. You get the SQL query and you look verify if its right. If its wrong, you correct it without delivering any other talk other than the query. Here is the schema: {schema}. Make query according to sqLite database."""
+            {"role": "system", "content": f"""You are an SQL query analyzer that uses sqllite3. You get the SQL query and you look verify if its right. If its wrong, you correct it without delivering any other talk other than the query. Here is the schema: {schema}. Make query according to sqLite database."""
             },
             {
-                "role":"user", "content":f"""Here is the user question: {query}...fix this if theres any mistake in this previously generated SQL query: {llm1Query}. Return only SQL inside ```sql ... ``` block. If its multiple queries, combine them into ONE query."""
+                "role":"user", "content":f"""Here is the user question: {query}...fix this if theres any mistake in this previously generated SQL query: {llm1Query}. Return only SQL inside ```sql ... ``` block. If its multiple queries, return a single valid SQL query string, no comments, no explanations"""
             }
         ]
     )
@@ -77,7 +77,7 @@ def parse_sql(state):
 
 
 
-def run_query(state, sql_query: str):
+def run_query(state, sql_query):
     """
     Executes a SQL query on the given SQLite database.
 
@@ -92,34 +92,15 @@ def run_query(state, sql_query: str):
         with sqlite3.connect("customer_support.db") as conn:
             cur = conn.cursor()
             cur.execute(sql_query)
-            
             # If it's a SELECT, fetch results
-            if sql_query.strip().lower().startswith("select"):
+            if str(sql_query).strip().lower().startswith("select"):
                 results = cur.fetchall()
                 state["sql_results"] = results
-            
+            else:
             # If it's INSERT/UPDATE/DELETE, commit changes
-            conn.commit()
-            state["sql_results"] = [("Query executed successfully",)]
+               conn.commit()
+               state["sql_results"] = [("Query executed successfully",None)]
     
     except sqlite3.Error as e:
-        state["sql_results"] = [(f"Database error: {e}",)]
-
-def clean_sql(sql_query):
-    # Case 1: it’s already a string like "SELECT ..."
-    if isinstance(sql_query, str):
-        try:
-            # Try to safely parse it if it looks like a dict-as-string
-            parsed = ast.literal_eval(sql_query)
-            if isinstance(parsed, dict):
-                return parsed.get("sql") or parsed.get("query")
-            return sql_query  # already a clean query
-        except (ValueError, SyntaxError):
-            return sql_query
-    
-    # Case 2: real dict
-    elif isinstance(sql_query, dict):
-        return sql_query.get("sql") or sql_query.get("query")
-    
-    else:
-        raise ValueError(f"Unsupported SQL type: {type(sql_query)}")
+        state["sql_results"] = [(f"Error executing query: {e}",None)]
+  

@@ -6,8 +6,9 @@ from dotenv import load_dotenv
 from langchain_groq import ChatGroq
 from langchain_core.messages import HumanMessage, AIMessage, SystemMessage
 from langgraph_chatapp.rag_agent import getContext, PassContextToLLM
-from langgraph_chatapp.database_agent import generateQuery, parse_sql, run_query, clean_sql
+from langgraph_chatapp.database_agent import generateQuery, parse_sql, run_query
 import streamlit as st
+import json
 load_dotenv() 
 
 llm = ChatGroq(
@@ -32,11 +33,15 @@ def database_agent(state: State)->State:
     """"""
     print("starting database function")
     generateQuery(state)
+    print("1st sql: ", state["results"])
     sql_query = parse_sql(state)
-    cleaned_query = clean_sql(sql_query)
-    print("Final SQL:", cleaned_query)
-    run_query(cleaned_query, state)
+    print("2nd SQL:", sql_query)
+    sql = sql_query.strip("\n")
+    print("Final SQL:", sql)
+    
+    run_query(state, sql)
     print("ended database function")
+    return state
 
 #knowledge base function
 def knowledge_base_agent(state: State)->State:
@@ -47,7 +52,8 @@ def knowledge_base_agent(state: State)->State:
 def print_output(state: State)->State:
     # print(state["answer"])
     if state["decision"] == "database_agent":
-        st.chat_input("results").write(state["sql_results"])
+        st.chat_message("results").write(state["sql_results"])
+        st.session_state["messages"].append({"role": "ai", "content": str(state["results"]) })
     else:
         st.chat_message("ai").write(state["answer"])
         state["context"]+=f"\n\nAI: {state['answer']}"
