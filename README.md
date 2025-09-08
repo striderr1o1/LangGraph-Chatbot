@@ -35,23 +35,15 @@ Note: There is a high chance that you may get errors while installing because of
 ## Workflow:
                      Start
                       |
-                      |
            Router agent(decides which tool to use)
-                      |
                       |
                      / \
                     /   \
-                   /     \
-                  /       \
-                 /         \
-  Knowledge base tool       database tool
-            |                   |
-            |                   |
-             \                 /
-              \               /
-               \             /
+  Knowledge base tool     database tool
+            |                 |
+            |                 |
+             \                /
                  Print Output
-                      |
                       |
                      END
 
