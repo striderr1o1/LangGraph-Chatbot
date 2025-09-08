@@ -33,18 +33,7 @@ OLLAMA_EMBEDDING_MODEL="mxbai-embed-large:latest"
 Note: There is a high chance that you may get errors while installing because of this inconsistent readme file. In such a case, email me at mnipk1243@gmail.com.
 
 ## Workflow:
-Start, then-----------|
-           Router agent(decides which tool to use)
-                      |
-                      |
-                     / \
-                    /   \
-                   /     \
-                  /       \
-                 /         \
-  Knowledge base tool       database tool
-                      
- then prints at the printing node and END.
+Start --> router agent(decides tool, knowledge base tool or database tool) ---> run tool node ---> print output node --> end
 
 ## Some Other Things:
 - DBsetup.py: database initialization code with some sample tables
