@@ -30,7 +30,7 @@ class State(TypedDict):
 
 #database function
 def database_agent(state: State)->State:
-    """"""
+    """Use when user asks for customers, their emails, orders, etc"""
     print("starting database function")
     generateQuery(state)
     print("1st sql: ", state["results"])
@@ -45,6 +45,7 @@ def database_agent(state: State)->State:
 
 #knowledge base function
 def knowledge_base_agent(state: State)->State:
+    """Use when user asking things like: docs, policies, customer policies"""
     getContext(state)
     PassContextToLLM(state)
     return state
