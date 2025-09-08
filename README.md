@@ -3,7 +3,7 @@
 This application is a basic implementation of Agentic Ai. It is powered by langgraph, groq, streamlit, sqlite3. Made in Python programming language. It is an agentic chatbot that does the following tasks based on user query, though only one task per query:
 
 - searches the knowledge base and answers user query according to relevant docs in the vector database.
-- searches the sqlite database and displays the results (not in table form though), can also add or delete
+- searches the sqlite database and displays the results (not in table form though), database tool can display errors.
 
 You can also ingest your own PDFs (other formats not supported).
 
