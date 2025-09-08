@@ -30,7 +30,8 @@ OLLAMA_EMBEDDING_MODEL="mxbai-embed-large:latest"
 ```
 - run streamlit app.
 
-Note: There is a high chance that you may get errors while installing because of this inconsistent readme file. In such a case, email me at mnipk1243@gmail.com.
+## Note: 
+There is a high chance that you may get errors while installing because of this inconsistent readme file. In such a case, email me at mnipk1243@gmail.com.
 
 ## Workflow:
 Start --> router agent(decides tool, knowledge base tool or database tool) ---> run tool node ---> print output node --> end
