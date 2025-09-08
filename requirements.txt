@@ -3,3 +3,6 @@ langchain
 langchain_community
 chromadb
 groq
+streamlit
+PyPDF2
+grandalf

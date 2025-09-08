@@ -44,7 +44,7 @@ def PassContextToLLM(state):
     
     query = f" previous chats: {chats}context: {results}...User Query: {state['messages'][-1].content}"
     answer = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model=os.environ.get('CHAT_GROQ_MODEL'),
         messages=[
             {"role": "system", "content": """Your task is to analyze the context
                                             and answer the user query from the results. Be precise"""

@@ -20,7 +20,7 @@ client = Groq(
 def generateQuery(state):
     query = state["query"]
     response = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model=os.environ.get('CHAT_GROQ_MODEL'),
         messages=[
             {"role": "system", "content": f"""You are an SQL query generator based on analyzing the user query. Dont give even a single word other than the query. Here is the schema: {schema}. Return a single valid SQL query string for sqlite3, no comments, no explanations """
             },
@@ -32,7 +32,7 @@ def generateQuery(state):
     llm1Query = response.choices[0].message.content
     
     finalResponse = client.chat.completions.create(
-        model="llama-3.3-70b-versatile",
+        model=os.environ.get('CHAT_GROQ_MODEL'),
         messages=[
             {"role": "system", "content": f"""You are an SQL query analyzer that uses sqllite3. You get the SQL query and you look verify if its right. If its wrong, you correct it without delivering any other talk other than the query. Here is the schema: {schema}. Make query according to sqLite database."""
             },
