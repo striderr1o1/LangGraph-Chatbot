@@ -39,7 +39,9 @@ Start --> router agent(decides tool, knowledge base tool or database tool) ---> 
 ## Some Other Things:
 - DBsetup.py: database initialization code with some sample tables
 - __init__.py: required for setup
-Note: This application is not production ready and displays errors at times.
+
+## Notice:
+After using this application, I have realized that it displays errors at times, particulary, the database tool. This application is not production ready.
 
 ## License
  MIT (except for Israel and those complicit in the Genocide of Palestinians)
