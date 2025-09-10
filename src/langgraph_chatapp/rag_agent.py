@@ -4,13 +4,7 @@ from langgraph.graph import add_messages
 from dotenv import load_dotenv
 import chromadb
 from groq import Groq
-#take query
-#make embeddings
-#search chromadb
-#get context
-#send to llm
-#state["knowledgeBaseResponse"] = llm response
-#print by sending to next node
+
 
 load_dotenv()
 
@@ -41,20 +35,24 @@ def getContext(state):
 def PassContextToLLM(state):
     results = state["results"]
     chats = state["context"]
-    
-    query = f" previous chats: {chats}context: {results}...User Query: {state['messages'][-1].content}"
+    with open("context.txt", "r") as file:
+        user_instructions = file.read()
+        
+    query = f"retrieved results: {results}...User Query: {state['messages'][-1].content}"
     answer = client.chat.completions.create(
         model=os.environ.get('CHAT_GROQ_MODEL'),
         messages=[
-            {"role": "system", "content": """Your task is to analyze the context
-                                            and answer the user query from the results. Be precise"""
+            {"role": "system", "content": f"""Your task is to analyze the context
+                                            and answer the user query from the results.
+                                            Here are the INSTRUCTIONS that you need to follow: {user_instructions}"""
             },
             {
                 "role":"user", "content":query
             }
         ]
     )
-    state["context"]+=f"""\n\nUser: {state["messages"][-1].content}"""
+    # state["context"]+=f"""\n\nUser: {state["messages"][-1].content}"""
     state["answer"]=answer.choices[0].message.content
-   
+    state["messages"].append({"role": "ai", "content": state["answer"]})
+    # print(state["messages"][-1])
     return state

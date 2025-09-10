@@ -75,8 +75,8 @@ def AskAgent1(state: State) -> State:
         state["query"] = query
         
         st.chat_message("user").write(query)
-        context_w_query = f"Context: {state['context']} Query: {query}"
-        state["messages"].append({"role": "user", "content": context_w_query})
+        
+        state["messages"].append({"role": "user", "content": query})
         st.session_state["messages"].append({"role": "user", "content": query})
     
         response = model_w_tools.invoke(str(query))
@@ -102,7 +102,7 @@ def check_decision(state: State)->State:
         st.write("[x] Knowledge Base Tool Called")
         return "knowledge_base_agent"
     else:
-        st.write("[x]Rag Tool Called")
+        st.write("[x]Knowledge Base Tool Called")
         return "knowledge_base_agent"
     
 
@@ -112,7 +112,7 @@ def RunWorkFlow():
     
     graph_builder = StateGraph(State)
     
-    graph_builder.add_node("AskAgent1", AskAgent1)
+    graph_builder.add_node("AskAgent1", AskAgent1)#router agent
     graph_builder.add_node('database_agent', database_agent)
     graph_builder.add_node('knowledge_base_agent', knowledge_base_agent)
     graph_builder.add_node('print_output', print_output)
@@ -140,10 +140,10 @@ def RunWorkFlow():
     "decision": "",
     "results": "",
     "answer": "",
-    "context": st.session_state["context"],   # empty string to start
+    "context": "",   # empty string to start
     "sql_results": []
 }
     finalstate = graph.invoke(inputs)
-    st.session_state["context"] += finalstate["context"]
-    print("Final: ",st.session_state["context"])
+    # st.session_state["context"] += finalstate["context"]
+    # print("Final: ",st.session_state["context"])
 

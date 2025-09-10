@@ -6,7 +6,7 @@ st.set_page_config(page_title="AI App", layout="wide")
 
 # Sidebar for navigation
 st.sidebar.title("Navigation")
-page = st.sidebar.radio("Go to", ["Document Ingestion", "Chatbot"])
+page = st.sidebar.radio("Go to", ["Document Ingestion", "Chatbot", "Set Instructions"])
 
 # Page 1: Document Ingestion
 if page == "Document Ingestion":
@@ -37,13 +37,26 @@ if page == "Document Ingestion":
                 st.write(status)
 
 # Page 2: Database
-elif page == "Database":
-    st.title("🗄️ Database")
+elif page == "Set Instructions":
     
     
+    st.title("Set Instructions for Knowledge Base Agent")
+    with open('context.txt', "r") as context_file:
+            context_read = context_file.read()
+            st.header("Old Instructions:")
+            st.write(context_read)
+    st.header("Add New Instructions:")
+    context = st.text_area("Add here:")
+    if st.button("Submit:"):
+        with open('context.txt', "w") as context_file:
+            context_file.write(context + "\n")
+            st.header("Your New Context")
+            st.write(context)
+
+
 
 # Page 3: Chatbot
 elif page == "Chatbot":
     st.title("🤖 Chatbot")
-    st.session_state["context"] = ""
+    
     RunWorkFlow()
