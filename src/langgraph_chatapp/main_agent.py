@@ -34,12 +34,8 @@ def database_agent(state: State)->State:
     """Use when user asks for customers, their emails, orders, etc"""
     print("starting database function")
     generateQuery(state)
-    print("1st sql: ", state["results"])
     sql_query = parse_sql(state)
-    print("2nd SQL:", sql_query)
     sql = sql_query.strip("\n")
-    print("Final SQL:", sql)
-    
     run_query(state, sql)
     print("ended database function")
     return state
@@ -52,14 +48,18 @@ def knowledge_base_agent(state: State)->State:
     return state
 
 def print_output(state: State)->State:
-    # print(state["answer"])
     if state["decision"] == "database_agent":
-        st.chat_message("results").write(state["sql_results"])
-        st.session_state["messages"].append({"role": "ai", "content": str(state["results"]) })
+        response = str(state["sql_results"])
+        st.chat_message("ai").write(response)
+        st.session_state["messages"].append({"role": "ai", "content": response})
+        st.session_state["context"] = st.session_state["context"]  + "{Role: " + st.session_state["messages"][-1]["role"] + ", content: " + st.session_state["messages"][-1]["content"] + "}\n\n"
+        print(st.session_state["context"])
     else:
         st.chat_message("ai").write(state["answer"])
-        state["context"]+=f"\n\nAI: {state['answer']}"
-        st.session_state["messages"].append({"role": "ai", "content": state["answer"] })
+        
+        st.session_state["messages"].append({"role": "ai", "content": state["answer"]})
+        st.session_state["context"] = st.session_state["context"]  + "{Role: " + st.session_state["messages"][-1]["role"] + ", content: " + st.session_state["messages"][-1]["content"].strip("\n") + "}\n\n"
+        print(st.session_state["context"])
     return state
 
 model_w_tools = llm.bind_tools([database_agent, knowledge_base_agent])
@@ -69,6 +69,9 @@ def AskAgent1(state: State) -> State:
     #set context, either in string or lists
     if "messages" not in st.session_state:
         st.session_state["messages"] = []
+    if "context" not in st.session_state:
+        st.session_state["context"] = ""
+    # Display previous messages in chat history
     for msg in st.session_state["messages"]:
         st.chat_message(msg["role"]).write(msg["content"])
     if query := st.chat_input("Ask a question..."):
@@ -76,9 +79,9 @@ def AskAgent1(state: State) -> State:
         
         st.chat_message("user").write(query)
         
-        state["messages"].append({"role": "user", "content": query})
+        # Only store in session_state, state["messages"] is for LangGraph internal use
         st.session_state["messages"].append({"role": "user", "content": query})
-    
+        st.session_state["context"] = st.session_state["context"]  + "{Role: " + st.session_state["messages"][-1]["role"] + ", content: " + st.session_state["messages"][-1]["content"] + "}\n\n"
         response = model_w_tools.invoke(str(query))
         #if exists
         if len(response.additional_kwargs) != 0:

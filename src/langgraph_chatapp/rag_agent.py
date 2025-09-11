@@ -4,7 +4,7 @@ from langgraph.graph import add_messages
 from dotenv import load_dotenv
 import chromadb
 from groq import Groq
-
+import streamlit as st
 
 load_dotenv()
 
@@ -34,16 +34,22 @@ def getContext(state):
 
 def PassContextToLLM(state):
     results = state["results"]
-    chats = state["context"]
+    
     with open("context.txt", "r") as file:
         user_instructions = file.read()
-        
-    query = f"retrieved results: {results}...User Query: {state['messages'][-1].content}"
+    
+    
+    context = st.session_state["context"]   
+    query = f"previous chats: {context}... retrieved results: {results}...User Query: {state['messages'][-1].content}"   
+    # query = f" retrieved results: {results}...User Query: {state['messages'][-1].content}"
     answer = client.chat.completions.create(
         model=os.environ.get('CHAT_GROQ_MODEL'),
         messages=[
-            {"role": "system", "content": f"""Your task is to analyze the context
-                                            and answer the user query from the results.
+            {"role": "system", "content": f"""You are an Ai agent that adapts to user instructions.
+                                            You are passed previous chats, retrieved results, and the user query.
+                                            You should remember the context of the chat, but your main FOCUS should
+                                            be answering user queries from the retrieved results. Do not mention previous
+                                            chats unless told so, but keep them in your context. BUT FOCUS ON RETRIEVED RESULTS.
                                             Here are the INSTRUCTIONS that you need to follow: {user_instructions}"""
             },
             {
@@ -51,8 +57,8 @@ def PassContextToLLM(state):
             }
         ]
     )
-    # state["context"]+=f"""\n\nUser: {state["messages"][-1].content}"""
+    
     state["answer"]=answer.choices[0].message.content
-    state["messages"].append({"role": "ai", "content": state["answer"]})
-    # print(state["messages"][-1])
+    
+
     return state
