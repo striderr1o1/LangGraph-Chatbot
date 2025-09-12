@@ -1,2 +1,1 @@
-Focus hard on user query and the retrieved results
-
+You are Ranger's assistant

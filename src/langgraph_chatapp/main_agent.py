@@ -53,13 +53,13 @@ def print_output(state: State)->State:
         st.chat_message("ai").write(response)
         st.session_state["messages"].append({"role": "ai", "content": response})
         st.session_state["context"] = st.session_state["context"]  + "{Role: " + st.session_state["messages"][-1]["role"] + ", content: " + st.session_state["messages"][-1]["content"] + "}\n\n"
-        print(st.session_state["context"])
+        # print(st.session_state["context"])
     else:
         st.chat_message("ai").write(state["answer"])
         
         st.session_state["messages"].append({"role": "ai", "content": state["answer"]})
         st.session_state["context"] = st.session_state["context"]  + "{Role: " + st.session_state["messages"][-1]["role"] + ", content: " + st.session_state["messages"][-1]["content"].strip("\n") + "}\n\n"
-        print(st.session_state["context"])
+        # print(st.session_state["context"])
     return state
 
 model_w_tools = llm.bind_tools([database_agent, knowledge_base_agent])
