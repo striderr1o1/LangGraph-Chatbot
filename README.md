@@ -5,7 +5,8 @@ This application is a basic implementation of Agentic Ai. It is powered by langg
 - searches the knowledge base and answers user query according to relevant docs in the vector database.
 - searches the sqlite database and displays the results (not in table form though).
 
-You can also ingest your own PDFs (other formats not supported).
+
+You can also ingest your own PDFs (other formats not supported) and also set custom instructions. The context of the chat is also maintained to some extent.
 
 ## Technologies used:
 
@@ -39,12 +40,13 @@ Start --> router agent(decides tool, knowledge base tool or database tool) ---> 
 ## Some Other Things:
 - DBsetup.py: database initialization code with some sample tables
 - __init__.py: required for setup
+- context.txt: your custom instructions go here
 
 ## Notice:
-After using this application, I have realized that it displays errors at times, particulary, the database tool. This application is not production ready.
+After using this application, I have realized that it displays errors at times, particulary, the database tool. This application can be used for small use-case but not for large scale businesses and systems.
 
 ## License
- MIT (except for Israel and those complicit in the Genocide of Palestinians)
+ MIT
 
 ### Authored by:
-- author also goes by the nickname of "Ranger".
+- Ranger
